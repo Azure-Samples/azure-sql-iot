@@ -1,0 +1,11 @@
+{
+    "IsEncrypted": false,
+    "Values": {
+        "FUNCTIONS_WORKER_RUNTIME": "dotnet",
+        "FUNCTIONS_EXTENSION_VERSION": "~3",
+        "APPINSIGHTS_INSTRUMENTATIONKEY": "<ConnectionString>",
+        "EventHubConnectionAppSetting": "<ConnectionString>",
+        "AzureWebJobsStorage": "UseDevelopmentStorage=true;",
+        "SQLDBConnectionString": "Server=tcp:<serverName>.database.windows.net,1433;Database=iot-db;User ID=<userName>;Password=<Password>;Encrypt=true;Connection Timeout=30;"
+    }
+}
