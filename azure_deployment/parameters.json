@@ -1,0 +1,42 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "iothub_name": {
+            "value": "myiothubanthotest"
+        },
+        "server_sql_name": {
+            "value": "mysqlserverforiotantho"
+        },
+        "server_admin_name": {
+            "value": "myadminforiot"
+        },
+        "server_admin_password": {
+            "value": "myPa33wordforiot!"
+        },
+        "site_iot_name": {
+            "value": "myiotsite"
+        },
+        "serverfarm_iot_name": {
+            "value": "myiotserverfarm"
+        },
+        "virtualmachine_devicesimulator_name": {
+            "value": "myiotsimulator"
+        },
+        "logworkspace_name": {
+            "value": "mylogworkspace"
+        },
+        "storageaccount_iothub_name": {
+            "value": "myaccountforiot"
+        },
+        "storageaccount_iothub_container": {
+            "value": "mystoragecontainerforiot"
+        },
+        "networkinterface_devicesimulator_name": {
+            "value": "nicforiot"
+        },
+        "virtualnetwork_iot_name": {
+            "value": "vnetforiot"
+        }
+    }
+}

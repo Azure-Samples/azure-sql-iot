@@ -1,0 +1,475 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "iothub_name": {
+            "type": "String"
+        },
+        "server_sql_name": {
+            "type": "String"
+        },        
+        "server_admin_name": {
+            "type": "String"
+        },
+        "server_admin_password": {
+            "type": "securestring"
+        },
+        "site_iot_name": {
+            "type": "String"
+        },
+        "serverfarm_iot_name": {
+            "type": "String"
+        },
+        "virtualmachine_devicesimulator_name": {
+            "type": "String"
+        },
+        "logworkspace_name": {
+            "type": "String"
+        },
+        "storageaccount_iothub_name": {
+            "type": "String"
+        },
+        "storageaccount_iothub_container": {
+            "type": "String"
+        },
+        "networkinterface_devicesimulator_name": {
+            "type": "String"
+        },
+        "virtualnetwork_iot_name": {
+            "type": "String"
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "type": "Microsoft.Devices/IotHubs",
+            "apiVersion": "2021-03-31",
+            "name": "[parameters('iothub_name')]",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageaccount_iothub_name'))]"
+            ],
+            "sku": {
+                "name": "S3",
+                "tier": "Standard",
+                "capacity": 4
+            },
+            "identity": {
+                "type": "None"
+            },
+            "properties": {
+                "ipFilterRules": [],
+                "eventHubEndpoints": {
+                    "events": {
+                        "retentionTimeInDays": 1,
+                        "partitionCount": 32
+                    }
+                },
+                "routing": {
+                    "endpoints": {
+                        "serviceBusQueues": [],
+                        "serviceBusTopics": [],
+                        "eventHubs": [],
+                        "storageContainers": []
+                    },
+                    "routes": [],
+                    "fallbackRoute": {
+                        "name": "$fallback",
+                        "source": "DeviceMessages",
+                        "condition": "true",
+                        "endpointNames": [
+                            "events"
+                        ],
+                        "isEnabled": true
+                    }
+                },
+                "storageEndpoints": {
+                    "$default": {
+                        "sasTtlAsIso8601": "PT1H",
+                        "connectionString": "[concat('DefaultEndpointsProtocol=https;AccountName=', parameters('storageaccount_iothub_name'), ';AccountKey=', listKeys(resourceId(resourceGroup().name,'Microsoft.Storage/storageAccounts', parameters('storageaccount_iothub_name')), '2019-04-01').keys[0].value,';EndpointSuffix=core.windows.net')]",
+                        "containerName": "[parameters('storageaccount_iothub_container')]"
+                    }
+                },
+                "messagingEndpoints": {
+                    "fileNotifications": {
+                        "lockDurationAsIso8601": "PT1M",
+                        "ttlAsIso8601": "PT1H",
+                        "maxDeliveryCount": 10
+                    }
+                },
+                "enableFileUploadNotifications": false,
+                "cloudToDevice": {
+                    "maxDeliveryCount": 10,
+                    "defaultTtlAsIso8601": "PT1H",
+                    "feedback": {
+                        "lockDurationAsIso8601": "PT1M",
+                        "ttlAsIso8601": "PT1H",
+                        "maxDeliveryCount": 10
+                    }
+                },
+                "features": "None"
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkInterfaces",
+            "apiVersion": "2020-11-01",
+            "name": "[parameters('networkinterface_devicesimulator_name')]",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualnetwork_iot_name'))]"
+            ],
+            "properties": {
+                "ipConfigurations": [
+                    {
+                        "name": "ipconfig1",
+                        "properties": {
+                            "privateIPAddress": "10.16.0.5",
+                            "privateIPAllocationMethod": "Dynamic",
+                            "subnet": {
+                                "id": "[concat(resourceId('Microsoft.Network/virtualNetworks', parameters('virtualnetwork_iot_name')), '/subnets/default')]"
+                            },
+                            "primary": true,
+                            "privateIPAddressVersion": "IPv4"
+                        }
+                    }
+                ],
+                "dnsSettings": {
+                    "dnsServers": []
+                },
+                "enableAcceleratedNetworking": true,
+                "enableIPForwarding": false
+            }
+        },
+        {
+            "type": "microsoft.operationalinsights/workspaces",
+            "apiVersion": "2020-10-01",
+            "name": "[parameters('logworkspace_name')]",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "sku": {
+                    "name": "pergb2018"
+                },
+                "retentionInDays": 30,
+                "features": {
+                    "enableLogAccessUsingOnlyResourcePermissions": true
+                },
+                "workspaceCapping": {
+                    "dailyQuotaGb": -1
+                },
+                "publicNetworkAccessForIngestion": "Enabled",
+                "publicNetworkAccessForQuery": "Enabled"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers",
+            "apiVersion": "2021-02-01-preview",
+            "name": "[parameters('server_sql_name')]",
+            "location": "[resourceGroup().location]",
+            "kind": "v12.0",
+            "properties": {
+                "administratorLogin": "[parameters('server_admin_name')]",
+                "administratorLoginPassword": "[parameters('server_admin_password')]",
+                "version": "12.0",
+                "publicNetworkAccess": "Enabled",
+                "restrictOutboundNetworkAccess": "Disabled"
+            },
+            "resources": 
+                [
+                            {
+            "type": "databases",
+            "apiVersion": "2021-02-01-preview",
+            "name": "iot-db",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', parameters('server_sql_name'))]"
+            ],
+            "sku": {
+                "name": "HS_Gen5",
+                "tier": "Hyperscale",
+                "family": "Gen5",
+                "capacity": 8
+            },
+            "kind": "v12.0,user,vcore,hyperscale",
+            "properties": {
+                "collation": "SQL_Latin1_General_CP1_CI_AS",
+                "maxSizeBytes": -1,
+                "catalogCollation": "SQL_Latin1_General_CP1_CI_AS",
+                "zoneRedundant": false,
+                "licenseType": "LicenseIncluded",
+                "readScale": "Disabled",
+                "highAvailabilityReplicaCount": 0,
+                "requestedBackupStorageRedundancy": "Geo",
+                "isLedgerOn": false
+            }
+                            }
+                ]
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts",
+            "apiVersion": "2021-04-01",
+            "name": "[parameters('storageaccount_iothub_name')]",
+            "location": "[resourceGroup().location]",
+            "tags": {
+                "displayName": "warmPathStorage"
+            },
+            "sku": {
+                "name": "Standard_LRS",
+                "tier": "Standard"
+            },
+            "kind": "Storage",
+            "properties": {
+                "networkAcls": {
+                    "bypass": "AzureServices",
+                    "virtualNetworkRules": [],
+                    "ipRules": [],
+                    "defaultAction": "Allow"
+                },
+                "supportsHttpsTrafficOnly": true,
+                "encryption": {
+                    "services": {
+                        "file": {
+                            "keyType": "Account",
+                            "enabled": true
+                        },
+                        "blob": {
+                            "keyType": "Account",
+                            "enabled": true
+                        }
+                    },
+                    "keySource": "Microsoft.Storage"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Web/serverfarms",
+            "apiVersion": "2018-02-01",
+            "name": "[parameters('serverfarm_iot_name')]",
+            "location": "[resourceGroup().location]",
+            "sku": {
+                "name": "Y1",
+                "tier": "Free",
+                "size": "Y1",
+                "family": "Y",
+                "capacity": 1
+            },
+            "kind": "linux",
+            "properties": {
+                "perSiteScaling": false,
+                "maximumElasticWorkerCount": 1,
+                "isSpot": false,
+                "reserved": true,
+                "isXenon": false,
+                "hyperV": false,
+                "targetWorkerCount": 0,
+                "targetWorkerSizeId": 0
+            }
+        },
+        {
+            "type": "Microsoft.Compute/virtualMachines",
+            "apiVersion": "2021-03-01",
+            "name": "[parameters('virtualmachine_devicesimulator_name')]",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/networkInterfaces', parameters('networkinterface_devicesimulator_name'))]"
+            ],
+            "properties": {
+                "hardwareProfile": {
+                    "vmSize": "Standard_D2S_v3"
+                },
+                "storageProfile": {
+                    "imageReference": {
+                        "publisher": "Canonical",
+                        "offer": "UbuntuServer",
+                        "sku": "18.04-LTS",
+                        "version": "latest"
+                    },
+                    "osDisk": {
+                        "osType": "Linux",
+                        "name": "[concat(parameters('virtualmachine_devicesimulator_name'), '_OsDisk_1_705a45c871b24b0b952b171c008d8fb7')]",
+                        "createOption": "FromImage",
+                        "caching": "ReadWrite",
+                        "managedDisk": {
+                            "storageAccountType": "Premium_LRS"
+                        },
+                        "diskSizeGB": 30
+                    },
+                    "dataDisks": []
+                },
+                "osProfile": {
+                    "computerName": "[parameters('virtualmachine_devicesimulator_name')]",
+                    "adminUsername": "[parameters('server_admin_name')]",
+                    "adminPassword" : "[parameters('server_admin_password')]",
+                    "linuxConfiguration": {
+                        "disablePasswordAuthentication": false,
+                        "provisionVMAgent": true,
+                        "patchSettings": {
+                            "patchMode": "ImageDefault",
+                            "assessmentMode": "ImageDefault"
+                        }
+                    },
+                    "secrets": [],
+                    "allowExtensionOperations": true
+                },
+                "networkProfile": {
+                    "networkInterfaces": [
+                        {
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces', parameters('networkinterface_devicesimulator_name'))]"
+                        }
+                    ]
+                },
+                "diagnosticsProfile": {
+                    "bootDiagnostics": {
+                        "enabled": true
+                    }
+                }
+            }
+        },                 
+        {
+            "type": "Microsoft.Web/sites",
+            "apiVersion": "2018-11-01",
+            "name": "[parameters('site_iot_name')]",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/serverfarms', parameters('serverfarm_iot_name'))]"
+            ],
+            "kind": "functionapp,linux",
+            "properties": {
+                "enabled": true,
+                "hostNameSslStates": [
+                    {
+                        "name": "[concat(parameters('site_iot_name'), '.azurewebsites.net')]",
+                        "sslState": "Disabled",
+                        "hostType": "Standard"
+                    },
+                    {
+                        "name": "[concat(parameters('site_iot_name'), '.scm.azurewebsites.net')]",
+                        "sslState": "Disabled",
+                        "hostType": "Repository"
+                    }
+                ],
+                "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('serverfarm_iot_name'))]",
+                "reserved": true,
+                "isXenon": false,
+                "hyperV": false,
+                "siteConfig": {
+                    "numberOfWorkers": 1,
+                    "linuxFxVersion": "DOTNET|3.1",
+                    "alwaysOn": false,
+                    "http20Enabled": false,
+                    "defaultDocuments": [
+                        "Default.htm",
+                        "Default.html",
+                        "Default.asp",
+                        "index.htm",
+                        "index.html",
+                        "iisstart.htm",
+                        "default.aspx",
+                        "index.php"
+                    ],
+                    "netFrameworkVersion": "v4.0",
+                    "requestTracingEnabled": false,
+                    "remoteDebuggingEnabled": false,
+                    "remoteDebuggingVersion": "VS2019",
+                    "httpLoggingEnabled": false,
+                    "logsDirectorySizeLimit": 35,
+                    "detailedErrorLoggingEnabled": false,
+                    "publishingUsername": "$scoriani-iot-workload",
+                    "azureStorageAccounts": {},
+                    "scmType": "None",
+                    "use32BitWorkerProcess": false,
+                    "webSocketsEnabled": false,
+                    "managedPipelineMode": "Integrated",
+                    "virtualApplications": [
+                        {
+                            "virtualPath": "/",
+                            "physicalPath": "site\\wwwroot",
+                            "preloadEnabled": true
+                        }
+                    ],
+                    "loadBalancing": "LeastRequests",
+                    "experiments": {
+                        "rampUpRules": []
+                    },
+                    "autoHealEnabled": false,
+                    "cors": {
+                        "allowedOrigins": [
+                            "https://functions.azure.com",
+                            "https://functions-staging.azure.com",
+                            "https://functions-next.azure.com"
+                        ],
+                        "supportCredentials": false
+                    },
+                    "localMySqlEnabled": false,
+                    "ipSecurityRestrictions": [
+                        {
+                            "ipAddress": "Any",
+                            "action": "Allow",
+                            "priority": 1,
+                            "name": "Allow all",
+                            "description": "Allow all access"
+                        }
+                    ],
+                    "scmIpSecurityRestrictions": [
+                        {
+                            "ipAddress": "Any",
+                            "action": "Allow",
+                            "priority": 1,
+                            "name": "Allow all",
+                            "description": "Allow all access"
+                        }
+                    ],
+                    "scmIpSecurityRestrictionsUseMain": false,
+                    "minTlsVersion": "1.2",
+                    "ftpsState": "AllAllowed",
+                    "reservedInstanceCount": 0
+
+                },
+                "scmSiteAlsoStopped": false,
+                "clientAffinityEnabled": false,
+                "clientCertEnabled": false,
+                "hostNamesDisabled": false,
+                "containerSize": 0,
+                "dailyMemoryTimeQuota": 0,
+                "httpsOnly": false,
+                "redundancyMode": "None"
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/hostNameBindings",
+            "apiVersion": "2018-11-01",
+            "name": "[concat(parameters('site_iot_name'), '/', parameters('site_iot_name'), '.azurewebsites.net')]",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('site_iot_name'))]"
+            ],
+            "properties": {
+                "siteName": "parameters('site_iot_name')",
+                "hostNameType": "Verified"
+            }
+        },
+        {
+            "name": "[parameters('virtualnetwork_iot_name')]",
+            "type": "Microsoft.Network/virtualNetworks",
+            "apiVersion": "2019-11-01",
+            "location": "[resourceGroup().location]",
+            "tags": {
+                "displayName": "[parameters('virtualnetwork_iot_name')]"
+            },
+            "properties": {
+                "addressSpace": {
+                    "addressPrefixes": [
+                        "10.0.0.0/16"
+                    ]
+                },
+                "subnets": [
+                    {
+                        "name": "default",
+                        "properties": {
+                            "addressPrefix": "10.0.0.0/24"
+                        }
+                    }
+                ]
+            }
+        }                
+    ]
+}
