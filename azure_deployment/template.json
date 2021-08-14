@@ -3,40 +3,46 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "iothub_name": {
-            "type": "String"
+            "value": "myiothubanthotest"
         },
         "server_sql_name": {
-            "type": "String"
-        },        
+            "value": "mysqlserverforiotantho"
+        },
         "server_admin_name": {
-            "type": "String"
+            "value": "myadminforiot"
         },
         "server_admin_password": {
-            "type": "securestring"
+            "value": "myPa33wordforiot!"
         },
         "site_iot_name": {
-            "type": "String"
+            "value": "myiotsite"
         },
         "serverfarm_iot_name": {
-            "type": "String"
+            "value": "myiotserverfarm"
         },
         "virtualmachine_devicesimulator_name": {
-            "type": "String"
+            "value": "myiotsimulator"
         },
         "logworkspace_name": {
-            "type": "String"
+            "value": "mylogworkspace"
         },
         "storageaccount_iothub_name": {
-            "type": "String"
+            "value": "myaccountforiot"
         },
         "storageaccount_iothub_container": {
-            "type": "String"
+            "value": "mystoragecontainerforiot"
         },
         "networkinterface_devicesimulator_name": {
-            "type": "String"
+            "value": "nicforiot"
         },
         "virtualnetwork_iot_name": {
-            "type": "String"
+            "value": "vnetforiot"
+        },
+        "ip_address_name": {
+            "value": "publicipaddress"
+        },
+        "ssh_public_key": {
+            "value": "sshpublickey"
         }
     },
     "variables": {},
@@ -116,7 +122,8 @@
             "name": "[parameters('networkinterface_devicesimulator_name')]",
             "location": "[resourceGroup().location]",
             "dependsOn": [
-                "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualnetwork_iot_name'))]"
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualnetwork_iot_name'))]",
+                "[resourceId('Microsoft.Network/publicIPAddresses', parameters('ip_address_name'))]"
             ],
             "properties": {
                 "ipConfigurations": [
@@ -130,6 +137,18 @@
                             },
                             "primary": true,
                             "privateIPAddressVersion": "IPv4"
+                        }
+                    },
+                    {
+                        "name": "ipconfig2",
+                        "properties": {
+                            "privateIPAllocationMethod": "Dynamic",
+                            "publicIPAddress": {
+                                "id": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('ip_address_name'))]"
+                            },
+                            "subnet": {
+                                "id": "[concat(resourceId('Microsoft.Network/virtualNetworks', parameters('virtualnetwork_iot_name')), '/subnets/default')]"
+                            }
                         }
                     }
                 ],
@@ -173,36 +192,35 @@
                 "publicNetworkAccess": "Enabled",
                 "restrictOutboundNetworkAccess": "Disabled"
             },
-            "resources": 
-                [
-                            {
-            "type": "databases",
-            "apiVersion": "2021-02-01-preview",
-            "name": "iot-db",
-            "location": "[resourceGroup().location]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Sql/servers', parameters('server_sql_name'))]"
-            ],
-            "sku": {
-                "name": "HS_Gen5",
-                "tier": "Hyperscale",
-                "family": "Gen5",
-                "capacity": 8
-            },
-            "kind": "v12.0,user,vcore,hyperscale",
-            "properties": {
-                "collation": "SQL_Latin1_General_CP1_CI_AS",
-                "maxSizeBytes": -1,
-                "catalogCollation": "SQL_Latin1_General_CP1_CI_AS",
-                "zoneRedundant": false,
-                "licenseType": "LicenseIncluded",
-                "readScale": "Disabled",
-                "highAvailabilityReplicaCount": 0,
-                "requestedBackupStorageRedundancy": "Geo",
-                "isLedgerOn": false
-            }
-                            }
-                ]
+            "resources": [
+                {
+                    "type": "databases",
+                    "apiVersion": "2021-02-01-preview",
+                    "name": "iot-db",
+                    "location": "[resourceGroup().location]",
+                    "dependsOn": [
+                        "[resourceId('Microsoft.Sql/servers', parameters('server_sql_name'))]"
+                    ],
+                    "sku": {
+                        "name": "HS_Gen5",
+                        "tier": "Hyperscale",
+                        "family": "Gen5",
+                        "capacity": 8
+                    },
+                    "kind": "v12.0,user,vcore,hyperscale",
+                    "properties": {
+                        "collation": "SQL_Latin1_General_CP1_CI_AS",
+                        "maxSizeBytes": -1,
+                        "catalogCollation": "SQL_Latin1_General_CP1_CI_AS",
+                        "zoneRedundant": false,
+                        "licenseType": "LicenseIncluded",
+                        "readScale": "Disabled",
+                        "highAvailabilityReplicaCount": 0,
+                        "requestedBackupStorageRedundancy": "Geo",
+                        "isLedgerOn": false
+                    }
+                }
+            ]
         },
         {
             "type": "Microsoft.Storage/storageAccounts",
@@ -265,6 +283,18 @@
             }
         },
         {
+            "type": "Microsoft.Network/publicIPAddresses",
+            "apiVersion": "2020-05-01",
+            "name": "[parameters('ip_address_name')]",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "publicIPAllocationMethod": "Static"
+            },
+            "sku": {
+                "name": "Basic"
+            }
+        },
+        {
             "type": "Microsoft.Compute/virtualMachines",
             "apiVersion": "2021-03-01",
             "name": "[parameters('virtualmachine_devicesimulator_name')]",
@@ -298,10 +328,18 @@
                 "osProfile": {
                     "computerName": "[parameters('virtualmachine_devicesimulator_name')]",
                     "adminUsername": "[parameters('server_admin_name')]",
-                    "adminPassword" : "[parameters('server_admin_password')]",
+                    "adminPassword": "[parameters('server_admin_password')]",
                     "linuxConfiguration": {
                         "disablePasswordAuthentication": false,
                         "provisionVMAgent": true,
+                        "ssh": {
+                            "publicKeys": [
+                                {
+                                    "path": "[concat('/home/', parameters('server_admin_name'), '/.ssh/id_rsa')]",
+                                    "keyData": "[parameters('ssh_public_key')]"
+                                }
+                            ]
+                        }
                         "patchSettings": {
                             "patchMode": "ImageDefault",
                             "assessmentMode": "ImageDefault"
@@ -323,7 +361,7 @@
                     }
                 }
             }
-        },                 
+        },
         {
             "type": "Microsoft.Web/sites",
             "apiVersion": "2018-11-01",
@@ -470,6 +508,6 @@
                     }
                 ]
             }
-        }                
+        }
     ]
 }

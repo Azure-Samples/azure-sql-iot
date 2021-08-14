@@ -37,6 +37,12 @@
         },
         "virtualnetwork_iot_name": {
             "value": "vnetforiot"
+        },
+        "ip_address_name": {
+            "value": "publicipaddress"
+        },
+        "ssh_public_key": {
+            "value": "sshpublickey"
         }
     }
 }
