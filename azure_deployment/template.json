@@ -3,46 +3,46 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "iothub_name": {
-            "value": "myiothubanthotest"
+            "type": "String"
         },
         "server_sql_name": {
-            "value": "mysqlserverforiotantho"
+            "type": "String"
         },
         "server_admin_name": {
-            "value": "myadminforiot"
+            "type": "String"
         },
         "server_admin_password": {
-            "value": "myPa33wordforiot!"
+            "type": "securestring"
         },
         "site_iot_name": {
-            "value": "myiotsite"
+            "type": "String"
         },
         "serverfarm_iot_name": {
-            "value": "myiotserverfarm"
+            "type": "String"
         },
         "virtualmachine_devicesimulator_name": {
-            "value": "myiotsimulator"
+            "type": "String"
         },
         "logworkspace_name": {
-            "value": "mylogworkspace"
+            "type": "String"
         },
         "storageaccount_iothub_name": {
-            "value": "myaccountforiot"
+            "type": "String"
         },
         "storageaccount_iothub_container": {
-            "value": "mystoragecontainerforiot"
+            "type": "String"
         },
         "networkinterface_devicesimulator_name": {
-            "value": "nicforiot"
+            "type": "String"
         },
         "virtualnetwork_iot_name": {
-            "value": "vnetforiot"
+            "type": "String"
         },
         "ip_address_name": {
-            "value": "publicipaddress"
+            "type": "String"
         },
         "ssh_public_key": {
-            "value": "sshpublickey"
+            "type": "String"
         }
     },
     "variables": {},
