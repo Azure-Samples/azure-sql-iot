@@ -303,6 +303,20 @@
                 "[resourceId('Microsoft.Network/networkInterfaces', parameters('networkinterface_devicesimulator_name'))]"
             ],
             "properties": {
+                "ipConfigurations": [
+                    {
+                        "name": "ipconfig1",
+                        "properties": {
+                            "privateIPAllocationMethod": "Static",
+                            "publicIPAddress": {
+                                "id": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('ip_address_name'))]"
+                            },
+                            "subnet": {
+                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualnetwork_iot_name'), 'default')]"
+                            }
+                        }
+                    }
+                ],
                 "hardwareProfile": {
                     "vmSize": "Standard_D2S_v3"
                 },
