@@ -335,7 +335,7 @@
                         "ssh": {
                             "publicKeys": [
                                 {
-                                    "path": "[concat('/home/', parameters('server_admin_name'), '/.ssh/id_rsa')]",
+                                    "path": "[concat('/home/', parameters('server_admin_name'), '/.ssh/authorized_keys')]",
                                     "keyData": "[parameters('ssh_public_key')]"
                                 }
                             ]
