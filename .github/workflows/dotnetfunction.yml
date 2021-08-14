@@ -6,7 +6,7 @@ on:
 env:
       AZURE_FUNCTIONAPP_PACKAGE_PATH: 'azure_function_app' # set this to the path to your web app project, defaults to the repository root
       AZURE_FUNCTIONAPP_NAME: iot-workload # set this to your application's name
-      DOTNET_VERSION: '3.0.11'
+      DOTNET_VERSION: '3.1'
 
 jobs:
   build-and-deploy:
