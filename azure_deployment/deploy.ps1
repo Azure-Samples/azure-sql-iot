@@ -67,4 +67,15 @@ az deployment group create -g $resourceGroupName `
     ip_address_name=$ipAddressName `
     ssh_public_key=$sshPublicKey 
 
-    az vm show --resource-group $resourceGroupName --name $iotSimulator --show-details --query publicIps
+# Create a server firewall rule that allows access from the specified IP range and all Azure services
+$serverFirewallRule = New-AzSqlServerFirewallRule `
+    -ResourceGroupName $resourceGroupName `
+    -ServerName $serverName `
+    -FirewallRuleName "AllowedIPs" `
+    -StartIpAddress $ipAddress -EndIpAddress $ipAddress 
+$allowAzureIpsRule = New-AzSqlServerFirewallRule `
+    -ResourceGroupName $resourceGroupName `
+    -ServerName $serverName `
+    -AllowAllAzureIPs
+
+az vm show --resource-group $resourceGroupName --name $iotSimulator --show-details --query publicIps
