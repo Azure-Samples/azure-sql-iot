@@ -339,7 +339,7 @@
                                     "keyData": "[parameters('ssh_public_key')]"
                                 }
                             ]
-                        }
+                        },
                         "patchSettings": {
                             "patchMode": "ImageDefault",
                             "assessmentMode": "ImageDefault"
