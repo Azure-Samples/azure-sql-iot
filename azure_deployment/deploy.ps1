@@ -46,7 +46,7 @@ Write-Host $serverName
 #$resourceGroup = Get-AzResourceGroup | Where ResourceGroupName -like $resourceGroupName
 #$location = $resourceGroup.Location
 # Get the repository name
-$appRepository = "https://github.com/Azure-Samples/azure-sql-iot.git" #Read-Host "Enter your GitHub repository URL (for example, 'https://github.com/[username]/azure-sql-iot'):"
+$appRepository = Read-Host "Enter your GitHub repository URL (for example, 'https://github.com/[username]/azure-sql-iot'):"
 $cloneRepository = git clone $appRepository
 
 az deployment group create -g $resourceGroupName `
