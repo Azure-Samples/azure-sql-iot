@@ -132,23 +132,14 @@
                         "properties": {
                             "privateIPAddress": "10.16.0.5",
                             "privateIPAllocationMethod": "Dynamic",
-                            "subnet": {
-                                "id": "[concat(resourceId('Microsoft.Network/virtualNetworks', parameters('virtualnetwork_iot_name')), '/subnets/default')]"
-                            },
-                            "primary": true,
-                            "privateIPAddressVersion": "IPv4"
-                        }
-                    },
-                    {
-                        "name": "ipconfig2",
-                        "properties": {
-                            "privateIPAllocationMethod": "Dynamic",
                             "publicIPAddress": {
                                 "id": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('ip_address_name'))]"
                             },
                             "subnet": {
                                 "id": "[concat(resourceId('Microsoft.Network/virtualNetworks', parameters('virtualnetwork_iot_name')), '/subnets/default')]"
-                            }
+                            },
+                            "primary": true,
+                            "privateIPAddressVersion": "IPv4"
                         }
                     }
                 ],
@@ -303,20 +294,6 @@
                 "[resourceId('Microsoft.Network/networkInterfaces', parameters('networkinterface_devicesimulator_name'))]"
             ],
             "properties": {
-                "ipConfigurations": [
-                    {
-                        "name": "ipconfig1",
-                        "properties": {
-                            "privateIPAllocationMethod": "Static",
-                            "publicIPAddress": {
-                                "id": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('ip_address_name'))]"
-                            },
-                            "subnet": {
-                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualnetwork_iot_name'), 'default')]"
-                            }
-                        }
-                    }
-                ],
                 "hardwareProfile": {
                     "vmSize": "Standard_D2S_v3"
                 },
