@@ -1,19 +1,16 @@
-name: Deploy DotNet project to function app with a Linux environment
+name: Deploy DotNet project to function app with a Windows environment
 
 on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+  [push]
 
 env:
       AZURE_FUNCTIONAPP_PACKAGE_PATH: 'azure_function_app' # set this to the path to your web app project, defaults to the repository root
-      AZURE_FUNCTIONAPP_NAME: antho-catch-bus # set this to your application's name
+      AZURE_FUNCTIONAPP_NAME: iot-workload # set this to your application's name
       DOTNET_VERSION: '3.1'
 
 jobs:
-  build-and-deploy-function-app:
-    runs-on: ubuntu-latest
+  build-and-deploy:
+    runs-on: windows-latest
     steps:
     - name: 'Checkout GitHub Action'
       uses: actions/checkout@main
@@ -24,16 +21,15 @@ jobs:
         dotnet-version: ${{ env.DOTNET_VERSION }}
 
     - name: 'Resolve Project Dependencies Using Dotnet'
-      shell: bash
+      shell: pwsh
       run: |
         pushd './${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}'
         dotnet build --configuration Release --output ./output
         popd
     - name: 'Run Azure Functions Action'
-      uses: Azure/functions-action@v1
+      uses: Azure/functions-action@v1.3.2
       id: fa
       with:
-        app-name: ${{ env.AZURE_FUNCTIONAPP_NAME }}
-        package: '${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}/output'
+        app-name: iot-workload
+        package: 'azure_function_app/output'
         publish-profile: ${{ secrets.AZURE_FUNCTIONAPP_PUBLISH_PROFILE }}
-      
