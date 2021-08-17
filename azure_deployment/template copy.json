@@ -115,7 +115,21 @@
                 },
                 "features": "None"
             }
-        }
+        },
+        {
+            "apiVersion": "2015-05-01",
+            "name": "iotappinsights",
+            "type": "Microsoft.Insights/components",
+            "kind": "web",
+            "location": "[resourceGroup().location]",
+            "tags": {
+                "[concat('hidden-link:', resourceGroup().id, '/providers/Microsoft.Web/sites/', parameters('site_iot_name'))]": "Resource"
+            },
+            "properties": {
+                "Application_Type": "web",
+                "ApplicationId": "iotappinsights"
+            }
+        },
         {
             "type": "Microsoft.Network/networkInterfaces",
             "apiVersion": "2020-11-01",
@@ -405,6 +419,10 @@
                         {
                             "name": "FUNCTIONS_WORKER_RUNTIME",
                             "value": "dotnet"
+                        },
+                        {
+                            "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
+                            "value": "[reference(resourceId('microsoft.insights/components/', 'iotappinsights'), '2015-05-01').InstrumentationKey]"
                         },
                         {
                             "name": "FUNCTIONS_EXTENSION_VERSION",
