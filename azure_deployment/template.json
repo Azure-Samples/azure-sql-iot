@@ -117,6 +117,20 @@
             }
         },
         {
+            "apiVersion": "2015-05-01",
+            "name": "iotappinsights",
+            "type": "Microsoft.Insights/components",
+            "kind": "web",
+            "location": "[resourceGroup().location]",
+            "tags": {
+                "[concat('hidden-link:', resourceGroup().id, '/providers/Microsoft.Web/sites/', parameters('site_iot_name'))]": "Resource"
+            },
+            "properties": {
+                "Application_Type": "web",
+                "ApplicationId": "iotappinsights"
+            }
+        },
+        {
             "type": "Microsoft.Network/networkInterfaces",
             "apiVersion": "2020-11-01",
             "name": "[parameters('networkinterface_devicesimulator_name')]",
@@ -359,7 +373,9 @@
             "name": "[parameters('site_iot_name')]",
             "location": "[resourceGroup().location]",
             "dependsOn": [
-                "[resourceId('Microsoft.Web/serverfarms', parameters('serverfarm_iot_name'))]"
+                "[resourceId('Microsoft.Web/serverfarms', parameters('serverfarm_iot_name'))]",
+                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageaccount_iothub_name'))]"
+
             ],
             "kind": "functionapp,linux",
             "properties": {
@@ -394,6 +410,32 @@
                         "iisstart.htm",
                         "default.aspx",
                         "index.php"
+                    ],
+                    "appSettings": [
+                        {
+                            "name": "AzureWebJobsStorage",
+                            "value": "UpdateWithYourKey"
+                        },
+                        {
+                            "name": "FUNCTIONS_WORKER_RUNTIME",
+                            "value": "dotnet"
+                        },
+                        {
+                            "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
+                            "value": "[reference(resourceId('microsoft.insights/components/', 'iotappinsights'), '2015-05-01').InstrumentationKey]"
+                        },
+                        {
+                            "name": "FUNCTIONS_EXTENSION_VERSION",
+                            "value": "~3"
+                        },
+                        {
+                            "name": "EventHubConnectionAppSetting",
+                            "value": "UpdateWithYourKey"
+                        },
+                        {
+                            "name": "SQLDBConnectionString",
+                            "value": "UpdateWithYourKey"
+                        }
                     ],
                     "netFrameworkVersion": "v4.0",
                     "requestTracingEnabled": false,
