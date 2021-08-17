@@ -46,9 +46,8 @@ Write-Host $serverName
 #$resourceGroup = Get-AzResourceGroup | Where ResourceGroupName -like $resourceGroupName
 #$location = $resourceGroup.Location
 # Get the repository name
-$appRepository = Read-Host "Enter your GitHub repository URL (for example, 'https://github.com/[username]/azure-sql-iot'):"
+$appRepository =  "https://github.com/Azure-Samples/azure-sql-iot.git" #Read-Host "Enter your GitHub repository URL (for example, 'https://github.com/[username]/azure-sql-iot'):"
 $cloneRepository = git clone $appRepository
-
 az deployment group create -g $resourceGroupName `
 --template-file ./azure-sql-iot/azure_deployment/template.json `
     --parameters `
@@ -66,7 +65,6 @@ az deployment group create -g $resourceGroupName `
     virtualnetwork_iot_name=$vNet `
     ip_address_name=$ipAddressName `
     ssh_public_key=$sshPublicKey 
-
 # Create a server firewall rule that allows access from the specified IP range and all Azure services
 $serverFirewallRule = New-AzSqlServerFirewallRule `
     -ResourceGroupName $resourceGroupName `
@@ -77,5 +75,4 @@ $allowAzureIpsRule = New-AzSqlServerFirewallRule `
     -ResourceGroupName $resourceGroupName `
     -ServerName $serverName `
     -AllowAllAzureIPs
-
 az vm show --resource-group $resourceGroupName --name $iotSimulator --show-details --query publicIps

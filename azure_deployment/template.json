@@ -402,7 +402,7 @@
                     "httpLoggingEnabled": false,
                     "logsDirectorySizeLimit": 35,
                     "detailedErrorLoggingEnabled": false,
-                    "publishingUsername": "$scoriani-iot-workload",
+                    "publishingUsername": "[parameters('server_admin_name')]",
                     "azureStorageAccounts": {},
                     "scmType": "None",
                     "use32BitWorkerProcess": false,
