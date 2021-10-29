@@ -51,7 +51,7 @@
             "type": "Microsoft.Devices/IotHubs",
             "apiVersion": "2021-03-31",
             "name": "[parameters('iothub_name')]",
-            "location": "[resourceGroup().location]",
+            "location": "westus2",
             "dependsOn": [
                 "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageaccount_iothub_name'))]"
             ],
@@ -121,7 +121,7 @@
             "name": "iotappinsights",
             "type": "Microsoft.Insights/components",
             "kind": "web",
-            "location": "[resourceGroup().location]",
+            "location": "westus2",
             "tags": {
                 "[concat('hidden-link:', resourceGroup().id, '/providers/Microsoft.Web/sites/', parameters('site_iot_name'))]": "Resource"
             },
@@ -134,7 +134,7 @@
             "type": "Microsoft.Network/networkInterfaces",
             "apiVersion": "2020-11-01",
             "name": "[parameters('networkinterface_devicesimulator_name')]",
-            "location": "[resourceGroup().location]",
+            "location": "westus2",
             "dependsOn": [
                 "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualnetwork_iot_name'))]",
                 "[resourceId('Microsoft.Network/publicIPAddresses', parameters('ip_address_name'))]"
@@ -168,7 +168,7 @@
             "type": "microsoft.operationalinsights/workspaces",
             "apiVersion": "2020-10-01",
             "name": "[parameters('logworkspace_name')]",
-            "location": "[resourceGroup().location]",
+            "location": "westus2",
             "properties": {
                 "sku": {
                     "name": "pergb2018"
@@ -188,7 +188,7 @@
             "type": "Microsoft.Sql/servers",
             "apiVersion": "2021-02-01-preview",
             "name": "[parameters('server_sql_name')]",
-            "location": "[resourceGroup().location]",
+            "location": "westus2",
             "kind": "v12.0",
             "properties": {
                 "administratorLogin": "[parameters('server_admin_name')]",
@@ -202,7 +202,7 @@
                     "type": "databases",
                     "apiVersion": "2021-02-01-preview",
                     "name": "iot-db",
-                    "location": "[resourceGroup().location]",
+                    "location": "westus2",
                     "dependsOn": [
                         "[resourceId('Microsoft.Sql/servers', parameters('server_sql_name'))]"
                     ],
@@ -231,7 +231,7 @@
             "type": "Microsoft.Storage/storageAccounts",
             "apiVersion": "2021-04-01",
             "name": "[parameters('storageaccount_iothub_name')]",
-            "location": "[resourceGroup().location]",
+            "location": "westus2",
             "tags": {
                 "displayName": "warmPathStorage"
             },
@@ -267,7 +267,7 @@
             "type": "Microsoft.Web/serverfarms",
             "apiVersion": "2018-02-01",
             "name": "[parameters('serverfarm_iot_name')]",
-            "location": "[resourceGroup().location]",
+            "location": "westus2",
             "sku": {
                 "name": "Y1",
                 "tier": "Free",
@@ -291,7 +291,7 @@
             "type": "Microsoft.Network/publicIPAddresses",
             "apiVersion": "2020-05-01",
             "name": "[parameters('ip_address_name')]",
-            "location": "[resourceGroup().location]",
+            "location": "westus2",
             "properties": {
                 "publicIPAllocationMethod": "Static"
             },
@@ -303,7 +303,7 @@
             "type": "Microsoft.Compute/virtualMachines",
             "apiVersion": "2021-03-01",
             "name": "[parameters('virtualmachine_devicesimulator_name')]",
-            "location": "[resourceGroup().location]",
+            "location": "westus2",
             "dependsOn": [
                 "[resourceId('Microsoft.Network/networkInterfaces', parameters('networkinterface_devicesimulator_name'))]"
             ],
@@ -371,7 +371,7 @@
             "type": "Microsoft.Web/sites",
             "apiVersion": "2018-11-01",
             "name": "[parameters('site_iot_name')]",
-            "location": "[resourceGroup().location]",
+            "location": "westus2",
             "dependsOn": [
                 "[resourceId('Microsoft.Web/serverfarms', parameters('serverfarm_iot_name'))]",
                 "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageaccount_iothub_name'))]"
@@ -509,7 +509,7 @@
             "type": "Microsoft.Web/sites/hostNameBindings",
             "apiVersion": "2018-11-01",
             "name": "[concat(parameters('site_iot_name'), '/', parameters('site_iot_name'), '.azurewebsites.net')]",
-            "location": "[resourceGroup().location]",
+            "location": "westus2",
             "dependsOn": [
                 "[resourceId('Microsoft.Web/sites', parameters('site_iot_name'))]"
             ],
@@ -522,7 +522,7 @@
             "name": "[parameters('virtualnetwork_iot_name')]",
             "type": "Microsoft.Network/virtualNetworks",
             "apiVersion": "2019-11-01",
-            "location": "[resourceGroup().location]",
+            "location": "westus2",
             "tags": {
                 "displayName": "[parameters('virtualnetwork_iot_name')]"
             },
