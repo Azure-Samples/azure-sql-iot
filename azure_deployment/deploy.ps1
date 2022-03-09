@@ -19,7 +19,7 @@ Write-Host "Password and IP Address stored"
 $resourceGroupName = "[sandbox resource group name]"
 $resourceGroup = Get-AzResourceGroup | Where ResourceGroupName -like $resourceGroupName
 $uniqueID = Get-Random -Minimum 100000 -Maximum 1000000
-$location = $resourceGroup.Location
+$location = $resourceGroup.Location 
 # Create several uniquely named services
 $iotHub = "iothub$($uniqueID)"
 $serverName = "iotserver$($uniqueID)"
@@ -51,6 +51,7 @@ $cloneRepository = git clone $appRepository
 az deployment group create -g $resourceGroupName `
 --template-file ./azure-sql-iot/azure_deployment/template.json `
     --parameters `
+    location=$location `
     iothub_name=$iotHub `
     server_sql_name=$serverName `
     server_admin_name=$adminSqlLogin `
