@@ -3,8 +3,7 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "location": {
-            "type": "String",
-            "default": "eastus"
+            "type": "String"
         },
         "iothub_name": {
             "type": "String"
